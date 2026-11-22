@@ -50,11 +50,21 @@ def analizar_con_ia(texto_correo, enlaces):
     Si NO hay nada interesante, responde únicamente: DESCARTADO
     """
     
-    response = client.models.generate_content(
-        model="gemini-3.8-flash",
-        contents=prompt,
-    )
-    return response.text.strip()
+    # Lista de modelos: si el primero está saturado (503), prueba el siguiente
+    modelos_a_probar = ["gemini-3.8-flash-lite", "gemini-3.8-flash", "gemini-2.5-flash-lite"]
+    
+    for modelo in modelos_a_probar:
+        try:
+            response = client.models.generate_content(
+                model=modelo,
+                contents=prompt,
+            )
+            return response.text.strip()
+        except Exception as e:
+            print(f"Modelo {modelo} ocupado o no disponible ({e}), probando siguiente...")
+            
+    return "DESCARTADO"
+
 
 def enviar_aviso_correo(cuerpo_mensaje):
     msg = EmailMessage()
