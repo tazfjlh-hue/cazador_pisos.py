@@ -4,26 +4,24 @@ import email
 import smtplib
 from email.message import EmailMessage
 from bs4 import BeautifulSoup
-from openai import OpenAI
+from google import genai
 
 # Credenciales desde las variables de entorno (Secrets de GitHub)
-EMAIL_USER = os.environ["EMAIL_USER"]         # El Gmail nuevo que recibe las alertas de Idealista/Fotocasa
-EMAIL_PASS = os.environ["EMAIL_PASS"]         # La contraseña de aplicación de 16 letras de ese Gmail
-EMAIL_PERSONAL = os.environ["EMAIL_PERSONAL"] # Tu correo de siempre donde quieres recibir las gangas
-OPENAI_API_KEY = os.environ["OPENAI_API_KEY"] # Tu clave de OpenAI
+EMAIL_USER = os.environ["EMAIL_USER"]         # El Gmail nuevo que recibe las alertas
+EMAIL_PASS = os.environ["EMAIL_PASS"]         # La contraseña de aplicación de 16 letras
+EMAIL_PERSONAL = os.environ["EMAIL_PERSONAL"] # Tu correo personal donde llegan las gangas
+GEMINI_API_KEY = os.environ["GEMINI_API_KEY"] # Tu clave gratuita de Google AI Studio
 
 # Define aquí los precios medios (€/m2) de tus barrios objetivo
 ZONAS_REFERENCIA = """
-- Salamanca: 7.500 €/m2
-- Chamberi: 7000 €/m2
-- Retiro: 8000 €/m2
-- Chamartin: 7.600 €/m2
+- Centro: 4.100 €/m2
+- Ensanche: 3.400 €/m2
+- Barrio Norte: 2.600 €/m2
 """
 
 def limpiar_html(html_content):
     soup = BeautifulSoup(html_content, "html.parser")
     texto = soup.get_text(separator=" ", strip=True)
-    # Extrae enlaces de los portales inmobiliarios
     enlaces = [
         a['href'] for a in soup.find_all('a', href=True)
         if '://idealista.com' in a['href'] or 'fotocasa.es' in a['href']
@@ -31,7 +29,7 @@ def limpiar_html(html_content):
     return texto[:3500], list(set(enlaces))
 
 def analizar_con_ia(texto_correo, enlaces):
-    client = OpenAI(api_key=OPENAI_API_KEY)
+    client = genai.Client(api_key=GEMINI_API_KEY)
     
     prompt = f"""
     Eres un inversor inmobiliario experto en España. Acabo de recibir esta alerta de un portal inmobiliario.
@@ -52,12 +50,11 @@ def analizar_con_ia(texto_correo, enlaces):
     Si NO hay nada interesante, responde únicamente: DESCARTADO
     """
     
-    res = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.1
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt,
     )
-    return res.choices[0].message.content.strip()
+    return response.text.strip()
 
 def enviar_aviso_correo(cuerpo_mensaje):
     msg = EmailMessage()
@@ -71,13 +68,12 @@ def enviar_aviso_correo(cuerpo_mensaje):
         smtp.send_message(msg)
 
 def revisar_correos():
-    mail = imaplib.IMAP4_SSL("imap.gmail.com")
+    mail = imaplib.IMAP4_SSL("://gmail.com")
     mail.login(EMAIL_USER, EMAIL_PASS)
     mail.select("inbox")
     
-    # Busca solo correos NO LEÍDOS
     status, mensajes = mail.search(None, 'UNSEEN')
-    ids_correos = mensajes[0].split()
+    ids_correos = mensajes.split()
     
     if not ids_correos:
         print("Sin correos nuevos por analizar.")
@@ -86,7 +82,7 @@ def revisar_correos():
 
     for num in ids_correos:
         status, datos = mail.fetch(num, "(RFC822)")
-        msg = email.message_from_bytes(datos[0][1])
+        msg = email.message_from_bytes(datos)
         
         cuerpo_html = ""
         if msg.is_multipart():
@@ -111,3 +107,4 @@ def revisar_correos():
 
 if __name__ == "__main__":
     revisar_correos()
+
