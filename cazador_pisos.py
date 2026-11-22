@@ -71,7 +71,7 @@ def enviar_aviso_correo(cuerpo_mensaje):
         smtp.send_message(msg)
 
 def revisar_correos():
-    mail = imaplib.IMAP4_SSL("://gmail.com")
+    mail = imaplib.IMAP4_SSL("imap.gmail.com")
     mail.login(EMAIL_USER, EMAIL_PASS)
     mail.select("inbox")
     
