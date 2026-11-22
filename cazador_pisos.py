@@ -82,7 +82,7 @@ def revisar_correos():
 
     for num in ids_correos:
         status, datos = mail.fetch(num, "(RFC822)")
-        msg = email.message_from_bytes(datos)
+        msg = email.message_from_bytes(datos[0][1])
         
         cuerpo_html = ""
         if msg.is_multipart():
