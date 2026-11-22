@@ -63,12 +63,12 @@ def enviar_aviso_correo(cuerpo_mensaje):
     msg["From"] = EMAIL_USER
     msg["To"] = EMAIL_PERSONAL
 
-    with smtplib.SMTP_SSL("://gmail.com", 465) as smtp:
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(EMAIL_USER, EMAIL_PASS)
         smtp.send_message(msg)
 
 def revisar_correos():
-    mail = imaplib.IMAP4_SSL("://gmail.com")
+    mail = imaplib.IMAP4_SSL("imap.gmail.com")
     mail.login(EMAIL_USER, EMAIL_PASS)
     mail.select("inbox")
     
