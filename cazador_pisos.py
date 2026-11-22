@@ -7,10 +7,10 @@ from bs4 import BeautifulSoup
 from openai import OpenAI
 
 # Credenciales desde las variables de entorno (Secrets de GitHub)
-EMAIL_USER = os.environ["tazfjlh@gmail.com"]         # El Gmail nuevo que recibe las alertas de Idealista/Fotocasa
-EMAIL_PASS = os.environ["ahym rrhv pbtv tpza"]         # La contraseña de aplicación de 16 letras de ese Gmail
-EMAIL_PERSONAL = os.environ["las2castillas@gmail.com"] # Tu correo de siempre donde quieres recibir las gangas
-OPENAI_API_KEY = os.environ["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"] # Tu clave de OpenAI
+EMAIL_USER = os.environ["EMAIL_USER"]         # El Gmail nuevo que recibe las alertas de Idealista/Fotocasa
+EMAIL_PASS = os.environ["EMAIL_PASS"]         # La contraseña de aplicación de 16 letras de ese Gmail
+EMAIL_PERSONAL = os.environ["EMAIL_PERSONAL"] # Tu correo de siempre donde quieres recibir las gangas
+OPENAI_API_KEY = os.environ["OPENAI_API_KEY"] # Tu clave de OpenAI
 
 # Define aquí los precios medios (€/m2) de tus barrios objetivo
 ZONAS_REFERENCIA = """
