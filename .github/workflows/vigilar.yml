@@ -1,0 +1,22 @@
+name: Cazador Inmobiliario IA
+
+on:
+  schedule:
+    - cron: '*/15 * * * *' # Se ejecuta cada 15 minutos
+  workflow_dispatch:       # Permite ejecutarlo manualmente para hacer pruebas
+
+jobs:
+  ejecutar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_PERSONAL: ${{ secrets.EMAIL_PERSONAL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python cazador_pisos.py
