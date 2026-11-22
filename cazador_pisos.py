@@ -73,7 +73,7 @@ def revisar_correos():
     mail.select("inbox")
     
     status, mensajes = mail.search(None, 'UNSEEN')
-    ids_correos = mensajes.split()
+    ids_correos = mensajes[0].split()
     
     if not ids_correos:
         print("Sin correos nuevos por analizar.")
